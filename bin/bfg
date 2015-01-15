@@ -3,7 +3,7 @@
 use common::sense;
 use warnings FATAL => q(all);
 use autodie q(:all);
-use Getopt::Long qw(:config no_ignore_case);
+use Getopt::Long qw(:config no_ignore_case auto_version);
 use Pod::Find qw(pod_where);
 use Pod::Usage;
 use App::BoolFindGrep::CLI;
@@ -14,16 +14,16 @@ binmode STDOUT, q(:utf8);
 
 my %opt;
 my $result = GetOptions(
-    q(--files-from|T=s)       => sub { $opt{ $_[0] } = $_[1] },
-    q(--files-delim|d=s)      => sub { $opt{ $_[0] } = $_[1] },
-    q(--file-expr|f=s)        => sub { $opt{ $_[0] } = $_[1] },
-    q(--find-type|t=s)        => sub { $opt{ $_[0] } = $_[1] },
-    q(--fixed-strings|F)      => sub { $opt{ $_[0] } = $_[1] },
-    q(--match-expr|m=s)       => sub { $opt{ $_[0] } = $_[1] },
-    q(--ignore-case|i)        => sub { $opt{ $_[0] } = $_[1] },
-    q(--find-ignore-case|I)   => sub { $opt{ $_[0] } = $_[1] },
-    q(--line-regexp|x)        => sub { $opt{ $_[0] } = $_[1] },
-    q(--word-regexp|w)        => sub { $opt{ $_[0] } = $_[1] },
+    q(--files-from|T=s)     => sub { $opt{ $_[0] } = $_[1] },
+    q(--files-delim|d=s)    => sub { $opt{ $_[0] } = $_[1] },
+    q(--file-expr|f=s)      => sub { $opt{ $_[0] } = $_[1] },
+    q(--find-type|t=s)      => sub { $opt{ $_[0] } = $_[1] },
+    q(--fixed-strings|F)    => sub { $opt{ $_[0] } = $_[1] },
+    q(--match-expr|m=s)     => sub { $opt{ $_[0] } = $_[1] },
+    q(--ignore-case|i)      => sub { $opt{ $_[0] } = $_[1] },
+    q(--find-ignore-case|I) => sub { $opt{ $_[0] } = $_[1] },
+    q(--line-regexp|x)      => sub { $opt{ $_[0] } = $_[1] },
+    q(--word-regexp|w)      => sub { $opt{ $_[0] } = $_[1] },
     q(usage|help|h) => sub { pod2usage( q(-verbose) => 1 ) },
     q(man)          => sub { pod2usage( q(-verbose) => 2 ) },
 );
