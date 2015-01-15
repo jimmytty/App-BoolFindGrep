@@ -1,0 +1,155 @@
+#!/usr/bin/env perl
+
+use common::sense;
+use warnings FATAL => q(all);
+use autodie q(:all);
+use Getopt::Long qw(:config no_ignore_case);
+use Pod::Find qw(pod_where);
+use Pod::Usage;
+use App::BoolFindGrep::CLI;
+
+# VERSION
+
+binmode STDOUT, q(:utf8);
+
+my %opt;
+my $result = GetOptions(
+    q(--files-from|T=s)       => sub { $opt{ $_[0] } = $_[1] },
+    q(--files-delim|d=s)      => sub { $opt{ $_[0] } = $_[1] },
+    q(--file-expr|f=s)        => sub { $opt{ $_[0] } = $_[1] },
+    q(--find-type|t=s)        => sub { $opt{ $_[0] } = $_[1] },
+    q(--fixed-strings|F)      => sub { $opt{ $_[0] } = $_[1] },
+    q(--match-expr|m=s)       => sub { $opt{ $_[0] } = $_[1] },
+    q(--ignore-case|i)        => sub { $opt{ $_[0] } = $_[1] },
+    q(--find-ignore-case|I=i) => sub { $opt{ $_[0] } = $_[1] },
+    q(--line-regexp|x)        => sub { $opt{ $_[0] } = $_[1] },
+    q(--word-regexp|w)        => sub { $opt{ $_[0] } = $_[1] },
+    q(usage|help|h) => sub { pod2usage( q(-verbose) => 1 ) },
+    q(man)          => sub { pod2usage( q(-verbose) => 2 ) },
+);
+
+pod2usage( -verbose => 1 ) if !($result) || !(%opt);
+
+my $obj   = App::BoolFindGrep::CLI->new();
+my $check = $obj->args_checker(%opt);
+
+exit 1 unless $check;
+exit 1 unless $obj->process();
+
+my @file = @{ $obj->files() };
+
+say for sort @file;
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+bfg - Command Line Interface for App::BoolFindGrep.
+
+=head1 DESCRIPTION
+
+=head2 Boolean Expressions
+
+In the context of this program, a B<Boolean Expression> is a composite of I<OPERANDS>, I<OPERATORS> and I<GROUPS>.
+
+An I<OPERAND> is a string representing a literal text or a regular expression. It can be delimited by slashes like B<ed>, B<sed> or B<vim>. All non-delimiter slashes need to be escaped.
+
+An I<OPERATOR> can be B<AND>, B<OR> or B<NOT>, delimited by white spaces. The following composition of operators are valid too: B<AND NOT>, B<OR NOT>, B<NOT NOT NOT> ...
+
+A I<GROUP> is a sub expression delimite by parentheses used to define a set of sub conditions to match.
+
+Any expression valid in program languages are valid.
+
+=head1 USAGE
+
+    bfg [ -m <bool expr>]
+    bfg [-F|-i|[-w|-x]] [-m <bool expr>]
+    bfg [-t <literal|regexp>] [-I <0|1>] -f <EXPR>
+    bfg [-t <literal|regexp>] [-I <0|1>] -f <EXPR> -m <EXPR>
+    bfg [-T <filename|-|STDIN> [-d <char>]] [-F|-i|[-w|-x]] -m <EXPR>
+
+    OPTIONS:
+    [ --files-from       | -T ]    file name, - or stdin
+    [ --files-delim      | -d ]    file names' character separator
+    [ --file-expr        | -f ]    boolean expr to file names
+    [ --find-type        | -t ]    regexp (default) or literal.
+    [ --find-ignore-case | -I ]    0 (default) or 1
+    [ --match-expr       | -m ]    boolean expr to file contents
+    [ --fixed-strings    | -F ]    operands as literal strings
+    [ --ignore-case      | -i ]    ignore case of operands
+    [ --line-regexp      | -x ]    interpret operands as whole lines
+    [ --word-regexp      | -w ]    interpret operands as whole words
+
+=head1 OPTIONS
+
+=head2 "find" options
+
+=over
+
+=item * --files-from, -T
+
+Get file names from a file or from Standard Input. Valid forms to express STDIN are hyphen ou word "stdin" (the case is ignored). This option works like C<-T> from B<gnu tar>.
+
+=item * --files-delim, -d
+
+Specify string separator of file names when C<--files-from, -T> is given. This option can receive a NULL character if written as C<\0> (like C<-0> option from B<gnu xargs>.
+
+=item * --file-expr, -f
+
+Specify the boolean expression to search in file names. Any boolean expression is valid.
+
+=item * --find-type, -t
+
+Determines if operands of C<--file-expr, -f> are interpreted as literal strings or regular expressions. The default is regular expressions.
+
+=item * --find-ignore-case, -I
+
+Determines if case of operand of C<--file-expr, -f> are relevant or no. Default is yes (0).
+
+=back
+
+=head2 "grep" options
+
+=over
+
+=item * --match-expr, -m
+
+Specify the boolean expression to search in file contents. Any boolean expression is valid.
+
+=item * --fixed-strings, -F
+
+Interprets the operands of C<--match-expr> as literal strings.
+
+=item * --ignore-case, -i
+
+Ignore or no the case operands' case letters of C<--match-expr> option.
+
+=item * --line-regexp, -x
+
+Interprets each operand of C<--match-expr> as a whole line.
+
+=item * --word-regexp, -w
+
+Interprets each operand of C<--match-expr> as a whole word*.
+
+*word here is regexp context.
+
+=back
+
+=head1 EXAMPLES
+
+=head1 AUTHOR
+
+Ronaldo Ferreira de Lima aka jimmy <jimmy at gmail>.
+
+=head1 SEE ALSO
+
+=over
+
+=item * B<App::BoolFindGrep>.
+
+=back
+
+=cut
