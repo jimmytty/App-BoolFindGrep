@@ -56,16 +56,16 @@ In the context of this program, a B<Boolean Expression> is a composite of I<OPER
 
 An I<OPERAND> is a string representing a literal text or a regular expression. It can be delimited by slashes like B<ed>, B<sed> or B<vim>. All non-delimiter slashes need to be escaped.
 
-An I<OPERATOR> can be B<AND>, B<OR> or B<NOT>, delimited by white spaces. The following composition of operators are valid too: B<AND NOT>, B<OR NOT>, B<NOT NOT NOT> ...
+An I<OPERATOR> can be B<AND>, B<OR> or B<NOT>, delimited by white spaces. The following composition of operators are valid too: B<AND NOT>, B<OR NOT>, B<NOT NOT NOT> ...  Operators are case sensitive.
 
 A I<GROUP> is a sub expression delimite by parentheses used to define a set of sub conditions to match.
 
-Any expression valid in program languages are valid.
+Any expression valid in program languages are valid here.
 
 =head1 USAGE
 
-    bfg [ -m <bool expr>]
-    bfg [-F|-i|[-w|-x]] [-m <bool expr>]
+    bfg [ -m <EXPR>]
+    bfg [-F|-i|[-w|-x]] [-m <EXPR>]
     bfg [-t <literal|regexp>] [-I <0|1>] -f <EXPR>
     bfg [-t <literal|regexp>] [-I <0|1>] -f <EXPR> -m <EXPR>
     bfg [-T <filename|-|STDIN> [-d <char>]] [-F|-i|[-w|-x]] -m <EXPR>
@@ -106,7 +106,7 @@ Determines if operands of C<--file-expr, -f> are interpreted as literal strings 
 
 =item * --find-ignore-case, -I
 
-Determines if case of operand of C<--file-expr, -f> are relevant or no. Default is yes (0).
+Determines if case of operand of C<--file-expr, -f> are relevant or no. Default is yes (0). More or less like C<-iregex> and C<-iname> options from B<gnu find>.
 
 =back
 
@@ -120,7 +120,7 @@ Specify the boolean expression to search in file contents. Any boolean expressio
 
 =item * --fixed-strings, -F
 
-Interprets the operands of C<--match-expr> as literal strings.
+Interprets the operands of C<--match-expr> as literal strings. Like C<-F> option from B<gnu grep>.
 
 =item * --ignore-case, -i
 
@@ -128,17 +128,44 @@ Ignore or no the case operands' case letters of C<--match-expr> option.
 
 =item * --line-regexp, -x
 
-Interprets each operand of C<--match-expr> as a whole line.
+Interprets each operand of C<--match-expr> as a whole line. Like C<-x> option from B<gnu grep>.
 
 =item * --word-regexp, -w
 
-Interprets each operand of C<--match-expr> as a whole word*.
+Interprets each operand of C<--match-expr> as a whole word*. Like C<-w> option from B<gnu grep>.
 
-*word here is regexp context.
+*word here is regexp's context.
 
 =back
 
 =head1 EXAMPLES
+
+=head2 "Finding" Perl files
+
+All these options are equivalents:
+
+    $ bfg -I -f '\.pl$ OR \.pm$ OR \.t$ OR \.pod$'
+    $ bfg -I -f '/\.(?:p[lm]|t|pod)$/'
+    $ bfg -I -f '/\.(?:[Pp][LlMm]|Tt|[Pp][Oo][Dd])$/'
+    $ bfg -I -f '\.pl$|\.pm$|\.t$|\.pod$'
+
+=head2 "Greping"
+
+=head3 AND operator
+
+ foo AND bar
+
+    $ bfg -m 'foo AND bar'
+    $ bfg -m '/(?:foo|bar)/'
+    $ bfg -m 'foo|bar'
+
+=head2 Operands composed by operators or parentheses
+
+If you want search strings with any operator or parentheses, you need delimiter your pattern with slashes. Like in:
+
+    /foo OR bar/
+
+This example matches string C<foo or bar> but not matches strings C<foo> or C<bar> separately.
 
 =head1 AUTHOR
 
