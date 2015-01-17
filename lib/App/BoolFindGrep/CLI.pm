@@ -183,10 +183,6 @@ sub _files_from_checker {
                 $self->_msg( sprintf q('--%s' => empty file '%s'.),
                     $parameter, $value );
             }
-            else {
-                $self->_msg( sprintf q('--%s' => argument invalid '%s' ),
-                    $parameter, $value );
-            }
         } ## end if ( !/\A(?:-|stdin)\z/i)
     } ## end foreach ($value)
 
