@@ -78,12 +78,10 @@ sub _find_files {
             push @{ $self->found_files() }, $file if $result;
         }
     }
-    else {
-        $self->found_files($self->find->files());
-    }
+    else { $self->found_files( $self->find->files() ); }
 
     return 1;
-}
+} ## end sub _find_files
 
 sub _grep_files {
     my $self = shift;

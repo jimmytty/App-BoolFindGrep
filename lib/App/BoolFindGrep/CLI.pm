@@ -3,7 +3,6 @@ package App::BoolFindGrep::CLI;
 use common::sense;
 use charnames q(:full);
 use English qw[-no_match_vars];
-use List::Util qw[first];
 use Moo;
 use App::BoolFindGrep;
 
@@ -51,9 +50,10 @@ sub args_checker {
         q(are mutually exclusive.) => [
             [ qw[file_expr files_from], ],
             [ qw[line_regexp word_regexp], ],
+            [ qw[directory files_from], ],
         ],
         q(an empty value was given.) =>
-            [qw[file_delim file_expr files_from match_expr]],
+            [qw[file_delim file_expr files_from match_expr directory]],
         q(implies) => [
             { find_type        => [q(file_expr)] },
             { find_ignore_case => [q(file_expr)] },
@@ -82,7 +82,9 @@ sub args_checker {
     foreach my $parameter ( keys %{ $self->args() } ) {
         my $value = $self->args->{$parameter};
         my $checker = sprintf q(_%s_checker), $parameter;
-        $self->$checker($value) if $self->can($checker);
+        if ( $self->can($checker) ) {
+            return unless $self->$checker($value);
+        }
     }
 
     return 1;
@@ -129,7 +131,13 @@ sub _empty_value_checker {
 
     foreach my $key ( @{$keys} ) {
         next unless exists $self->args->{$key};
-        if ( $self->args->{$key} eq q() ) {
+        my $ref = ref $self->args->{$key} || q();
+        my @value;
+        if    ( $ref eq q() )      { @value = $self->args->{$key}; }
+        elsif ( $ref eq q(ARRAY) ) { @value = @{ $self->args->{$key} }; }
+        else                       { die; }
+
+        if ( ( grep { $_ eq q() } @value ) != 0 ) {
             $self->_msg( sprintf q('--%s': ) . $msg, $key );
             return;
         }
@@ -165,26 +173,29 @@ sub _files_from_checker {
 
     my $parameter = ( split m{::_(\S+)_checker\z}msx, ( caller 0 )[3] )[-1];
 
+    my $msg;
     foreach ($value) {
         if ( !/\A(?:-|stdin)\z/i ) {
             if ( !-e ) {
-                $self->_msg( sprintf q('--%s' => nonexistent file '%s'.),
-                    $parameter, $value );
+                $msg = sprintf q('--%s' => nonexistent file '%s'.),
+                    $parameter, $value;
             }
             elsif ( !-f ) {
-                $self->_msg( sprintf q('--%s' => irregular file '%s'.),
-                    $parameter, $value );
+                $msg = sprintf q('--%s' => irregular file '%s'.),
+                    $parameter, $value;
             }
             elsif ( !-r ) {
-                $self->_msg( sprintf q('--%s' => unredable file '%s'.),
-                    $parameter, $value );
+                $msg = sprintf q('--%s' => unreadable file '%s'.),
+                    $parameter, $value;
             }
             elsif (-z) {
-                $self->_msg( sprintf q('--%s' => empty file '%s'.),
-                    $parameter, $value );
+                $msg = sprintf q('--%s' => empty file '%s'.),
+                    $parameter, $value;
             }
         } ## end if ( !/\A(?:-|stdin)\z/i)
     } ## end foreach ($value)
+
+    if ( defined $msg ) { $self->_msg($msg); return; }
 
     $self->args->{files_delim} = qq(\N{LINE FEED});
 
@@ -211,6 +222,32 @@ sub _find_type_checker {
 
     return 1;
 } ## end sub _find_type_checker
+
+sub _directory_checker {
+    my $self   = shift;
+    my $values = shift;
+
+    my $parameter = ( split m{::_(\S+)_checker\z}msx, ( caller 0 )[3] )[-1];
+
+    my $msg;
+    foreach ( @{$values} ) {
+        if ( !-e ) {
+            $msg = sprintf q('--%s' => nonexistent directory '%s'.),
+                $parameter, $_;
+        }
+        elsif ( !-d ) {
+            $msg = sprintf q('--%s' => non-directory argument '%s'.),
+                $parameter, $_;
+        }
+        elsif ( !-r ) {
+            $msg = sprintf q('--%s' => unreadable directory '%s'.),
+                $parameter, $_;
+        }
+        if ( defined $msg ) { $self->_msg($msg); return; }
+    } ## end foreach ( @{$values} )
+
+    return 1;
+} ## end sub _directory_checker
 
 sub _msg {
     my $self = shift;

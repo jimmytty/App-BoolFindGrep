@@ -18,10 +18,11 @@ my $result = GetOptions(
     q(--files-delim|d=s)    => sub { $opt{ $_[0] } = $_[1] },
     q(--file-expr|f=s)      => sub { $opt{ $_[0] } = $_[1] },
     q(--find-type|t=s)      => sub { $opt{ $_[0] } = $_[1] },
+    q(--find-ignore-case|I) => sub { $opt{ $_[0] } = $_[1] },
+    q(--directory|D=s{1,})  => sub { push @{ $opt{ $_[0] } }, $_[1] },
     q(--fixed-strings|F)    => sub { $opt{ $_[0] } = $_[1] },
     q(--match-expr|m=s)     => sub { $opt{ $_[0] } = $_[1] },
     q(--ignore-case|i)      => sub { $opt{ $_[0] } = $_[1] },
-    q(--find-ignore-case|I) => sub { $opt{ $_[0] } = $_[1] },
     q(--line-regexp|x)      => sub { $opt{ $_[0] } = $_[1] },
     q(--word-regexp|w)      => sub { $opt{ $_[0] } = $_[1] },
     q(usage|help|h) => sub { pod2usage( q(-verbose) => 1 ) },
@@ -66,21 +67,22 @@ Any expression valid in program languages are valid here.
 
     bfg [ -m <EXPR>]
     bfg [-F|-i|[-w|-x]] [-m <EXPR>]
-    bfg [-t <literal|regexp>] [-I <0|1>] -f <EXPR>
+    bfg [-D <DIR1 [DIR2 [DIR3]]>] [-t <literal|regexp>] [-I <0|1>] -f <EXPR>
     bfg [-t <literal|regexp>] [-I <0|1>] -f <EXPR> -m <EXPR>
     bfg [-T <filename|-|STDIN> [-d <char>]] [-F|-i|[-w|-x]] -m <EXPR>
 
     OPTIONS:
-    [ --files-from       | -T ]    file name, - or stdin
-    [ --files-delim      | -d ]    file names' character separator
-    [ --file-expr        | -f ]    boolean expr to file names
+    [ --files-from       | -T ]    file name, "-" or stdin.
+    [ --files-delim      | -d ]    file names' character separator.
+    [ --file-expr        | -f ]    boolean expr to file names.
     [ --find-type        | -t ]    regexp (default) or literal.
     [ --find-ignore-case | -I ]    ignore find operands' case.
-    [ --match-expr       | -m ]    boolean expr to file contents
-    [ --fixed-strings    | -F ]    operands as literal strings
-    [ --ignore-case      | -i ]    ignore case of operands
-    [ --line-regexp      | -x ]    interpret operands as whole lines
-    [ --word-regexp      | -w ]    interpret operands as whole words
+    [ --directory        | -D ]    where to search for files.
+    [ --match-expr       | -m ]    boolean expr to file contents.
+    [ --fixed-strings    | -F ]    operands as literal strings.
+    [ --ignore-case      | -i ]    ignore case of operands.
+    [ --line-regexp      | -x ]    interpret operands as whole lines.
+    [ --word-regexp      | -w ]    interpret operands as whole words.
 
 =head1 OPTIONS
 
@@ -107,6 +109,10 @@ Determines if operands of C<--file-expr, -f> are interpreted as literal strings 
 =item * --find-ignore-case, -I
 
 Determines if case of operand of C<--file-expr, -f> are relevant or no. Default is yes (0). More or less like C<-iregex> and C<-iname> options from B<gnu find>.
+
+=item * --directory, -D
+
+A white space list of directories to search for files. This switch can be declared one time for each directory.
 
 =back
 

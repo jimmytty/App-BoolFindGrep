@@ -31,8 +31,15 @@ has find_type => (
 );
 has find_ignore_case => (
     is      => q(rw),
-    isa     => sub { ( $_[0] == 0 || $_[0] == 1 ) or die },
+    isa     => sub { ( $_[0] == 0 || $_[0] == 1 ) or die; },
     default => 0,
+);
+has directory => (
+    is  => q(rw),
+    isa => sub {
+        @{ $_[0] } == ( grep {-d $_ && -r $_} @{ $_[0] } ) or die;
+    },
+    default => sub { [q(.)] },
 );
 has patterns => ( is => q(rw), default => sub { {}; }, );
 has found    => ( is => q(rw), default => sub { {}; }, );
@@ -43,6 +50,10 @@ sub process {
 
     die if defined $self->files_delim() && !( defined $self->files_from() );
     die if defined $self->files_from()  && defined $self->file_expr();
+    die
+        if defined $self->files_from()
+        && @{ $self->directory() } != 1
+        && $self->directory->[0] ne q(.);
 
     if ( defined $self->files_from() ) {
         $self->_get_made_list();
@@ -50,7 +61,7 @@ sub process {
     else { $self->_finder(); }
 
     return 1;
-}
+} ## end sub process
 
 sub _get_made_list {
     my $self = shift;
@@ -75,21 +86,23 @@ sub _finder {
     my $self = shift;
 
     unless ( defined $self->file_expr() ) {
-        find sub { push @{ $self->files() }, $File::Find::name if -f }, q(.);
-        return 1;
+        find sub { push @{ $self->files() }, $File::Find::name if -f },
+            @{ $self->directory() };
     }
 
     $self->_process_patterns();
 
     find sub {
         if ( -f $_ ) {
-            foreach my $pattern ( keys %{ $self->patterns() } ) {
-                my $re = $self->patterns->{$pattern};
-                $self->found->{$File::Find::name}{$pattern} //= 0;
-                $self->found->{$File::Find::name}{$pattern}++ if m{$re};
+            if ( %{ $self->patterns() } ) {
+                foreach my $pattern ( keys %{ $self->patterns() } ) {
+                    my $re = $self->patterns->{$pattern};
+                    $self->found->{$File::Find::name}{$pattern} //= 0;
+                    $self->found->{$File::Find::name}{$pattern}++ if m{$re};
+                }
             }
         }
-    }, q(.);
+    }, @{ $self->directory() };
 
     return 1;
 } ## end sub _finder
