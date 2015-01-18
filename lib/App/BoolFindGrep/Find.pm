@@ -7,6 +7,7 @@ use English qw[-no_match_vars];
 use File::Find;
 use IO::File;
 use Moo;
+use Text::Glob qw[glob_to_regex_string];
 
 # VERSION
 
@@ -38,7 +39,7 @@ has find_ignore_case => (
 has directory => (
     is  => q(rw),
     isa => sub {
-        @{ $_[0] } == ( grep {-d $_ && -r $_} @{ $_[0] } ) or die;
+        @{ $_[0] } == ( grep { -d $_ && -r $_ } @{ $_[0] } ) or die;
     },
     default => sub { [q(.)] },
 );
@@ -113,13 +114,19 @@ sub _process_patterns {
 
     foreach my $pattern ( keys %{ $self->patterns() } ) {
         my $value = $pattern;
-        $value = quotemeta $value if $self->find_type() eq q(literal);
+        foreach ( $self->find_type() ) {
+            if ( $_ eq q(literal) ) { $value = quotemeta $value; }
+            elsif ( $_ eq q(glob) ) {
+                $value = glob_to_regex_string($value);
+                $value = sprintf q(^%s$), $value;
+            }
+        }
         $value = $self->find_ignore_case() == 1 ? qr{$value}i : qr{$value};
         $self->patterns->{$pattern} = $value;
     }
 
     return 1;
-}
+} ## end sub _process_patterns
 
 no Moo;
 __PACKAGE__->meta->make_immutable;
@@ -193,5 +200,3 @@ Ronaldo Ferreira de Lima aka jimmy <jimmy at gmail>.
 =head1 HISTORY
 
 =head1 SEE ALSO
-
-=cut

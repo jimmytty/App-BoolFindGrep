@@ -23,14 +23,15 @@ sub process {
               \sat\s
               (?<module>.*?)
               \sline\s
-              (?<line>\d+)\.\s*\z}msx
+              (?<line>\d+)\.\s*\z
+             }msx
             )
         {
             say STDERR sprintf q(%s: %s), $PROGRAM_NAME,
                 $LAST_PAREN_MATCH{msg};
         }
         return;
-    }
+    } ## end if ($EVAL_ERROR)
 
     @{ $self->files }
         = defined $self->args->{match_expr}
@@ -208,8 +209,7 @@ sub _find_type_checker {
 
     my $parameter = ( split m{::_(\S+)_checker\z}msx, ( caller 0 )[3] )[-1];
     my %type = (
-
-        # glob    => 0,    #
+        glob    => 1,    #
         literal => 1,    #
         regexp  => 1,    #
     );

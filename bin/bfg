@@ -67,15 +67,15 @@ Any expression valid in program languages are valid here.
 
     bfg [ -m <EXPR>]
     bfg [-F|-i|[-w|-x]] [-m <EXPR>]
-    bfg [-D <DIR1 [DIR2 [DIR3]]>] [-t <literal|regexp>] [-I <0|1>] -f <EXPR>
-    bfg [-t <literal|regexp>] [-I <0|1>] -f <EXPR> -m <EXPR>
+    bfg [-D <DIR1 [DIR2 [DIR3]]>] [-t <literal|glob|regexp>] [-I <0|1>] -f <EXPR>
+    bfg [-t <literal|glob|regexp>] [-I <0|1>] -f <EXPR> -m <EXPR>
     bfg [-T <filename|-|STDIN> [-d <char>]] [-F|-i|[-w|-x]] -m <EXPR>
 
     OPTIONS:
     [ --files-from       | -T ]    file name, "-" or stdin.
     [ --files-delim      | -d ]    file names' character separator.
     [ --file-expr        | -f ]    boolean expr to file names.
-    [ --find-type        | -t ]    regexp (default) or literal.
+    [ --find-type        | -t ]    regexp (default), literal or glob.
     [ --find-ignore-case | -I ]    ignore find operands' case.
     [ --directory        | -D ]    where to search for files.
     [ --match-expr       | -m ]    boolean expr to file contents.
@@ -104,7 +104,7 @@ Specify the boolean expression to search in file names. Any boolean expression i
 
 =item * --find-type, -t
 
-Determines if operands of C<--file-expr, -f> are interpreted as literal strings or regular expressions. The default is regular expressions.
+Determines if operands of C<--file-expr, -f> are interpreted as literal strings, glob patterns or regular expressions. The default is regular expressions.
 
 =item * --find-ignore-case, -I
 
