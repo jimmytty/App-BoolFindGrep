@@ -4,6 +4,7 @@ use common::sense;
 use charnames q(:full);
 use Carp;
 use English qw[-no_match_vars];
+use IO::File;
 use Moo;
 
 # VERSION

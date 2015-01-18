@@ -5,6 +5,7 @@ use charnames q(:full);
 use Carp;
 use English qw[-no_match_vars];
 use File::Find;
+use IO::File;
 use Moo;
 
 # VERSION
@@ -75,7 +76,7 @@ sub _get_made_list {
 
     while ( my $file = readline $fh ) {
         chomp $file;
-        croak sprintf q('%s': file nonexistent.), $file if !-e $file;
+        croak sprintf q('%s': irregular file.), $file if !-f $file;
         push @{ $self->files() }, $file;
     }
 
