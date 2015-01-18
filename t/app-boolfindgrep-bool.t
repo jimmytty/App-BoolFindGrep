@@ -3,6 +3,7 @@
 use common::sense;
 use warnings FATAL => q(all);
 use English qw[-no_match_vars];
+use List::Util qw[shuffle];
 use Test::More;
 
 my $class = q(App::BoolFindGrep::Bool);
@@ -211,7 +212,7 @@ my @test = (
 );
 
 my $method = q(parse_expr);
-foreach my $test (@test) {
+foreach my $test ( shuffle @test ) {
     my ( $input, $expected ) = @$test;
     my $testname = sprintf q(%s:'%s'), $method, $input;
     $obj->expression($input);

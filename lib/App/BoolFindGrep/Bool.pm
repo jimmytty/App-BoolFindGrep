@@ -29,11 +29,16 @@ sub parse_expr {
     return 1 unless defined $self->expression();
     return 1 if $self->expression() eq q();
 
-    my @token = $self->tokenizer( $self->expression() );
-    return unless  $self->lazy_checker(@token);
-    $self->operands_collector(@token);
+    $self->operands(undef);
+    $self->parse(undef);
 
+    my @token = $self->tokenizer( $self->expression() );
+
+    return unless $self->lazy_checker(@token);
+
+    $self->operands_collector(@token);
     my @expression = @token;
+
     $self->parse( [@expression] );
 
     return 1;
@@ -43,7 +48,7 @@ sub tokenizer {
     my $self       = shift;
     my $expression = shift;
 
-    my $op = join q(|), keys %{ $self->operators() };
+    my $op = join qq(\N{VERTICAL LINE}), keys %{ $self->operators() };
 
     my @expression = extract_multiple(
         $expression,    #
@@ -128,7 +133,7 @@ sub lazy_checker {
     }
 
     my $expression = join qq(\N{SPACE}), @token;
-    local $EVAL_ERROR;
+    $EVAL_ERROR = q();
     eval $expression;
     if ($EVAL_ERROR) {
         croak sprintf q(Syntax Error in expression: '%s'),
@@ -161,16 +166,16 @@ sub operands_collector {
 } ## end sub operands_collector
 
 sub lazy_solver {
-    my $self     = shift;
+    my $self    = shift;
     my %operand = splice @_;
 
     my @expression;
-    foreach my $token ( @{$self->parse()} ) {
+    foreach my $token ( @{ $self->parse() } ) {
         my ( $name, $value ) = @$token;
         if ( $name eq q(OPERAND) ) {
             $value = $operand{$value};
         }
-        elsif($name eq q(OPERATOR)){
+        elsif ( $name eq q(OPERATOR) ) {
             $value = $self->operators->{$value};
         }
         push @expression, $value;
@@ -179,7 +184,7 @@ sub lazy_solver {
     my $result = eval $expression;
 
     return $result;
-}
+} ## end sub lazy_solver
 
 no Moo;
 __PACKAGE__->meta->make_immutable;
