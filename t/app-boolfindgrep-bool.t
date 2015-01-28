@@ -215,6 +215,7 @@ my $method = q(parse_expr);
 foreach my $test ( shuffle @test ) {
     my ( $input, $expected ) = @$test;
     my $testname = sprintf q(%s:'%s'), $method, $input;
+    $obj->slash_as_delim(1);
     $obj->expression($input);
     local $EVAL_ERROR;
     eval { $obj->$method(); };

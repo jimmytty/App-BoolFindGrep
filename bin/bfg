@@ -25,6 +25,7 @@ my $result = GetOptions(
     q(--ignore-case|i)      => sub { $opt{ $_[0] } = $_[1] },
     q(--line-regexp|x)      => sub { $opt{ $_[0] } = $_[1] },
     q(--word-regexp|w)      => sub { $opt{ $_[0] } = $_[1] },
+    q(--slash-as-delim|/)   => sub { $opt{ $_[0] } = $_[1] },
     q(usage|help|h) => sub { pod2usage( q(-verbose) => 1 ) },
     q(man)          => sub { pod2usage( q(-verbose) => 2 ) },
 );
@@ -47,15 +48,50 @@ say for sort @file;
 
 =head1 NAME
 
-bfg - Command Line Interface for App::BoolFindGrep.
+bfg - find and grep files using boolean expressions.
 
 =head1 DESCRIPTION
 
-=head2 Boolean Expressions
+This program combines the power of three Unix tools (in their GNU versions): bool, find and grep to provide a way to search by filenames and/or by file contents using boolean expressions. Internaly, all boolean expressions with regexps/strings are translated into mathematical expressions and the B<Perl>'s interpreter itself is used to validade and evaluate these expressions.
+
+Complex searches using B<grep> are very painful and B<bool> have lots of limitations and complex escape rules. B<bfg> simplify these searches by using more clear syntax and better performance in some cases.
+
+For example, to search
+
+    first AND second AND third AND fourth AND NOT fifth
+
+in filenames, and the same expression in file contents using B<find> and B<grep>, you need do:
+
+    find . \
+        -type f \
+        -name '*first*' -a \
+        -name '*second*' -a \
+        -name '*third*' -a \
+        -name '*fourth*' -a \
+        -not -name '*fifth*' \
+        -print0 |
+    xargs grep -F -l 'first' |
+    tr '\n' |
+    xargs grep -F -l 'second' |
+    tr '\n' |
+    xargs grep -F -l 'third' |
+    tr '\n' |
+    xargs grep -F -l 'fourth' |
+    tr '\n' |
+    xargs grep -F -l -v 'fifth' |
+
+Using B<bfg> you can sumarize this to:
+
+    bfg -t literal -f \
+    'first AND second AND third AND fourth AND NOT fifth' \
+    -F -m \
+    'first AND second AND third AND fourth AND NOT fifth'
+
+=head2 About Boolean Expressions
 
 In the context of this program, a B<Boolean Expression> is a composite of I<OPERANDS>, I<OPERATORS> and I<GROUPS>.
 
-An I<OPERAND> is a string representing a literal text or a regular expression. It can be delimited by slashes like B<ed>, B<sed> or B<vim>. All non-delimiter slashes need to be escaped.
+An I<OPERAND> is a string representing a literal text or a regular expression. It can be delimited by slashes like B<ed>, B<sed> or B<vim>.
 
 An I<OPERATOR> can be B<AND>, B<OR> or B<NOT>, delimited by white spaces. The following composition of operators are valid too: B<AND NOT>, B<OR NOT>, B<NOT NOT NOT> ...  Operators are case sensitive.
 
@@ -83,6 +119,7 @@ Any expression valid in program languages are valid here.
     [ --ignore-case      | -i ]    ignore case of operands.
     [ --line-regexp      | -x ]    interpret operands as whole lines.
     [ --word-regexp      | -w ]    interpret operands as whole words.
+    [ --slash-as-delim   | -/ ]    slashes delimit operands.
 
 =head1 OPTIONS
 
@@ -142,6 +179,10 @@ Interprets each operand of C<--match-expr> as a whole word*. Like C<-w> option f
 
 *word here is regexp's context.
 
+=item * --slash-as-delim, -/
+
+Inhibt operators and parentheses interpretation insid slashes. To use literal slashes, escape them with a backslash.
+
 =back
 
 =head1 EXAMPLES
@@ -167,11 +208,11 @@ All these options are equivalents:
 
 =head2 Operands composed by operators or parentheses
 
-If you want search strings with any operator or parentheses, you need delimiter your pattern with slashes. Like in:
+If you want search strings with any operator or parentheses, you need delimiter your pattern with slashes (and set option C<--op-delimiters>). Like in:
 
     /foo OR bar/
 
-This example matches string C<foo or bar> but not matches strings C<foo> or C<bar> separately.
+This example matches whole string C<foo or bar> but not matches strings C<foo> or C<bar> separately.
 
 =head1 AUTHOR
 

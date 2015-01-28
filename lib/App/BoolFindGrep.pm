@@ -124,8 +124,6 @@ App::BoolFindGrep - find and grep files using boolean expressions.
 
 =head1 DESCRIPTION
 
-This module combines the power of three Unix tool (in their GNU versions): bool, find and grep. Internaly, all boolean expressions with regexps/strings are translated into mathematical expressions and the B<Perl>'s interpreter itself is used to validade and evaluate the expressions.
-
 =head1 METHODS
 
 =head2 found_files

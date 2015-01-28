@@ -10,6 +10,11 @@ use Moo;
 
 # VERSION
 
+has slash_as_delim => (
+    is      => q(rw),
+    isa     => sub { ( $_[0] == 0 || $_[0] == 1 ) or die },
+    default => 0,
+);
 has operators => (
     is      => q(ro),
     default => sub {
@@ -50,10 +55,17 @@ sub tokenizer {
 
     my $op = join qq(\N{VERTICAL LINE}), keys %{ $self->operators() };
 
-    my @expression = extract_multiple(
-        $expression,    #
-        [ sub { extract_delimited( $_[0], '/' ) } ],    #
-    );
+    my @expression;
+    if ( $self->slash_as_delim() ) {
+        @expression = extract_multiple(
+            $expression,    #
+            [ sub { extract_delimited( $_[0], '/' ) } ],    #
+        );
+    }
+    else {
+        @expression = $expression;
+        $expression[0] =~ s{\N{SOLIDUS}}{\N{REVERSE SOLIDUS}\N{SOLIDUS}}gmsx;
+    }
 
     foreach (@expression) {
 
