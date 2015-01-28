@@ -85,7 +85,7 @@ sub tokenizer {
          {\N{LINE FEED}$1\N{LINE FEED}}gmsx;
 
         s{(?:\A|\s)(${op})(?=\s|\z)}         # OPERATORS
-         {\N{LINE FEED}$1\N{LINE FEED}}gmsx;
+         {\N{LINE FEED}$1\N{LINE FEED}}gimsx;
 
         s{\A\p{IsSpace}+}{}msx;
         s{\p{IsSpace}+\z}{}msx;
@@ -104,8 +104,8 @@ sub tokenizer {
         {
             $token = [ q(PARENTHESIS), $token ];
         }
-        elsif ( exists $self->operators->{$token} ) {
-            $token = [ q(OPERATOR), $token ],;
+        elsif ( exists $self->operators->{uc $token} ) {
+            $token = [ q(OPERATOR), uc $token ],;
         }
         else {
             if ($token =~    #

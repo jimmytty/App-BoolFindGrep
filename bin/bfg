@@ -93,7 +93,7 @@ In the context of this program, a B<Boolean Expression> is a composite of I<OPER
 
 An I<OPERAND> is a string representing a literal text or a regular expression. It can be delimited by slashes like B<ed>, B<sed> or B<vim>.
 
-An I<OPERATOR> can be B<AND>, B<OR> or B<NOT>, delimited by white spaces. The following composition of operators are valid too: B<AND NOT>, B<OR NOT>, B<NOT NOT NOT> ...  Operators are case sensitive.
+An I<OPERATOR> can be B<AND>, B<OR> or B<NOT>, delimited by white spaces. The following composition of operators are valid too: B<AND NOT>, B<OR NOT>, B<NOT NOT NOT> ...  Operators are case insensitive.
 
 A I<GROUP> is a sub expression delimite by parentheses used to define a set of sub conditions to match.
 
