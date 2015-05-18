@@ -63,13 +63,13 @@ For example, to search
 in filenames, and the same expression in file contents using B<find> and B<grep>, you need do:
 
     find . \
-        -type f \
-        -name '*first*' -a \
-        -name '*second*' -a \
-        -name '*third*' -a \
-        -name '*fourth*' -a \
-        -not -name '*fifth*' \
-        -print0 |
+	-type f \
+	-name '*first*' -a \
+	-name '*second*' -a \
+	-name '*third*' -a \
+	-name '*fourth*' -a \
+	-not -name '*fifth*' \
+	-print0 |
     xargs grep -F -l 'first' |
     tr '\n' |
     xargs grep -F -l 'second' |
@@ -78,7 +78,7 @@ in filenames, and the same expression in file contents using B<find> and B<grep>
     tr '\n' |
     xargs grep -F -l 'fourth' |
     tr '\n' |
-    xargs grep -F -l -v 'fifth' |
+    xargs grep -F -l -v 'fifth'
 
 Using B<bfg> you can sumarize this to:
 
