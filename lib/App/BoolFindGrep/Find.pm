@@ -118,7 +118,6 @@ sub _process_patterns {
             if ( $_ eq q(literal) ) { $value = quotemeta $value; }
             elsif ( $_ eq q(glob) ) {
                 $value = glob_to_regex_string($value);
-                $value = sprintf q(^%s$), $value;
             }
         }
         $value = $self->find_ignore_case() == 1 ? qr{$value}i : qr{$value};
