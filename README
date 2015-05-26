@@ -2,10 +2,6 @@ NAME
 
     App::BoolFindGrep - find and grep files using boolean expressions.
 
-VERSION
-
-    version 0.04
-
 SYNOPSIS
 
 DESCRIPTION
