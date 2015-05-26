@@ -10,9 +10,13 @@ use Text::Glob qw[glob_to_regex_string];
 
 # VERSION
 
-has match_expr => ( is => q(rw), default => undef );
-has patterns   => ( is => q(rw), default => sub { {}; }, );
-has greped     => ( is => q(rw), default => sub { {}; }, );
+has match_expr => (
+    is      => q(rw),
+    isa     => sub { die if @_ > 1; die if ref $_[0]; },
+    default => undef,
+);
+has patterns => ( is => q(rw), default => sub { {}; }, );
+has greped   => ( is => q(rw), default => sub { {}; }, );
 has fixed_strings => (
     is      => q(rw),
     isa     => sub { ( $_[0] == 1 || $_[0] == 0 ) or die; },

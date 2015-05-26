@@ -23,7 +23,11 @@ has files_delim => (
     is      => q(rw),
     default => undef,
 );
-has file_expr => ( is => q(rw), default => undef );
+has file_expr => (
+    is      => q(rw),
+    isa     => sub { die if ref $_[0]; },
+    default => undef,
+);
 has find_type => (
     is  => q(rw),
     isa => sub {

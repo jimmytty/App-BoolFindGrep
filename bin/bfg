@@ -14,22 +14,27 @@ binmode STDOUT, q(:utf8);
 
 my %opt;
 my $result = GetOptions(
-    q(--files-from|T=s)     => sub { $opt{ $_[0] } = $_[1] },
-    q(--files-delim|d=s)    => sub { $opt{ $_[0] } = $_[1] },
-    q(--file-expr|f=s)      => sub { $opt{ $_[0] } = $_[1] },
+    q(--files-from|T=s)  => sub { $opt{ $_[0] } = $_[1] },
+    q(--files-delim|d=s) => sub { $opt{ $_[0] } = $_[1] },
+    q(--file-expr|f=s{1,}) => sub { push @{ $opt{ $_[0] } }, $_[1] },
     q(--find-type|t=s)      => sub { $opt{ $_[0] } = $_[1] },
     q(--find-ignore-case|I) => sub { $opt{ $_[0] } = $_[1] },
-    q(--directory|D=s{1,})  => sub { push @{ $opt{ $_[0] } }, $_[1] },
-    q(--fixed-strings|F)    => sub { $opt{ $_[0] } = $_[1] },
-    q(--match-expr|m=s)     => sub { $opt{ $_[0] } = $_[1] },
-    q(--ignore-case|i)      => sub { $opt{ $_[0] } = $_[1] },
-    q(--line-regexp|x)      => sub { $opt{ $_[0] } = $_[1] },
-    q(--word-regexp|w)      => sub { $opt{ $_[0] } = $_[1] },
-    q(--glob-regexp|g)      => sub { $opt{ $_[0] } = $_[1] },
-    q(--slash-as-delim|s)   => sub { $opt{ $_[0] } = $_[1] },
+    q(--directory|D=s{1,}) => sub { push @{ $opt{ $_[0] } }, $_[1] },
+    q(--fixed-strings|F) => sub { $opt{ $_[0] } = $_[1] },
+    q(--match-expr|m=s{1,}) => sub { push @{ $opt{ $_[0] } }, $_[1] },
+    q(--ignore-case|i)    => sub { $opt{ $_[0] } = $_[1] },
+    q(--line-regexp|x)    => sub { $opt{ $_[0] } = $_[1] },
+    q(--word-regexp|w)    => sub { $opt{ $_[0] } = $_[1] },
+    q(--glob-regexp|g)    => sub { $opt{ $_[0] } = $_[1] },
+    q(--slash-as-delim|s) => sub { $opt{ $_[0] } = $_[1] },
     q(usage|help|h) => sub { pod2usage( q(-verbose) => 1 ) },
     q(man)          => sub { pod2usage( q(-verbose) => 2 ) },
 );
+
+if (@ARGV) {
+    say qq(Unparsed options: '@ARGV');
+    pod2usage( -verbose => 1 );
+}
 
 pod2usage( -verbose => 1 ) if !($result) || !(%opt);
 
@@ -84,9 +89,9 @@ in filenames, and the same expression in file contents using B<find> and B<grep>
 Using B<bfg> you can sumarize this to:
 
     bfg -t literal -f \
-    'first AND second AND third AND fourth AND NOT fifth' \
+    first AND second AND third AND fourth AND NOT fifth \
     -F -m \
-    'first AND second AND third AND fourth AND NOT fifth'
+    first AND second AND third AND fourth AND NOT fifth
 
 =head2 About Boolean Expressions
 
@@ -208,7 +213,7 @@ All these options are equivalents:
 
  foo AND bar
 
-    $ bfg -m 'foo AND bar'
+    $ bfg -m foo AND bar
     $ bfg -m '/(?:foo|bar)/'
     $ bfg -m 'foo|bar'
 

@@ -96,6 +96,10 @@ sub _args_translator {
     my $self = shift;
     my %arg  = splice @_;
 
+    my %array2scalar = (
+        file_expr  => 1,
+        match_expr => 1,
+    );
     while ( my ( $arg, $value ) = each %arg ) {
         my $key = $arg;
         $key =~ tr{-}{_};
@@ -103,6 +107,10 @@ sub _args_translator {
             if ( $value eq q(\0) ) {
                 $value = qq(\N{NULL});
             }
+        }
+        elsif (exists $array2scalar{$key}) {
+            my $ref = ref $value // q();
+            $value = "@$value" if $ref eq q(ARRAY);
         }
         $self->args->{$key} = $value;
     }
