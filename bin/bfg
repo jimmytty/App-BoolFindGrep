@@ -25,6 +25,7 @@ my $result = GetOptions(
     q(--ignore-case|i)      => sub { $opt{ $_[0] } = $_[1] },
     q(--line-regexp|x)      => sub { $opt{ $_[0] } = $_[1] },
     q(--word-regexp|w)      => sub { $opt{ $_[0] } = $_[1] },
+    q(--glob-regexp|g)      => sub { $opt{ $_[0] } = $_[1] },
     q(--slash-as-delim|s)   => sub { $opt{ $_[0] } = $_[1] },
     q(usage|help|h) => sub { pod2usage( q(-verbose) => 1 ) },
     q(man)          => sub { pod2usage( q(-verbose) => 2 ) },
@@ -119,6 +120,7 @@ Any expression valid in program languages are valid here.
     [ --ignore-case      | -i ]    ignore case of operands.
     [ --line-regexp      | -x ]    interpret operands as whole lines.
     [ --word-regexp      | -w ]    interpret operands as whole words.
+    [ --glob-regexp      | -g ]    operands as shell patterns.
     [ --slash-as-delim   | -s ]    slashes delimit operands.
 
 =head1 OPTIONS
@@ -178,6 +180,10 @@ Interprets each operand of C<--match-expr> as a whole line. Like C<-x> option fr
 Interprets each operand of C<--match-expr> as a whole word*. Like C<-w> option from B<gnu grep>.
 
 *word here is regexp's context.
+
+=item * --glob-regexp, -g 
+
+Interprets each operand of C<--match-expr> as I<S<shell patterns>>.
 
 =item * --slash-as-delim, -s
 

@@ -6,6 +6,7 @@ use Carp;
 use English qw[-no_match_vars];
 use IO::File;
 use Moo;
+use Text::Glob qw[glob_to_regex_string];
 
 # VERSION
 
@@ -28,6 +29,11 @@ has line_regexp => (
     default => 0,
 );
 has word_regexp => (
+    is      => q(rw),
+    isa     => sub { ( $_[0] == 1 || $_[0] == 0 ) or die; },
+    default => 0,
+);
+has glob_regexp => (
     is      => q(rw),
     isa     => sub { ( $_[0] == 1 || $_[0] == 0 ) or die; },
     default => 0,
@@ -72,7 +78,7 @@ sub _search {
     }
 
     return 1;
-} ## end sub search
+} ## end sub _search
 
 sub _process_patterns {
     my $self = shift;
@@ -81,13 +87,18 @@ sub _process_patterns {
 
     foreach my $pattern ( keys %{ $self->patterns() } ) {
         my $value = $pattern;
-        $value = quotemeta $value if $self->fixed_strings();
-
-        if ( $self->line_regexp() ) {
-            $value = sprintf q(\A%s\z), $value;
+        if ( $self->glob_regexp() ) {
+            $value = glob_to_regex_string($value);
         }
-        elsif ( $self->word_regexp() ) {
-            $value = sprintf q(\b%s\b), $value;
+        else {
+            $value = quotemeta $value if $self->fixed_strings();
+
+            if ( $self->line_regexp() ) {
+                $value = sprintf q(\A%s\z), $value;
+            }
+            elsif ( $self->word_regexp() ) {
+                $value = sprintf q(\b%s\b), $value;
+            }
         }
 
         $value = $self->ignore_case() ? qr{$value}i : qr{$value};
@@ -96,7 +107,7 @@ sub _process_patterns {
     } ## end foreach my $pattern ( keys ...)
 
     return 1;
-} ## end sub process_patterns
+} ## end sub _process_patterns
 
 no Moo;
 __PACKAGE__->meta->make_immutable;

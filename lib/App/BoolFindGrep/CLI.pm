@@ -52,6 +52,7 @@ sub args_checker {
             [ qw[file_expr files_from], ],
             [ qw[line_regexp word_regexp], ],
             [ qw[directory files_from], ],
+            [ qw[fixed_strings glob_regexp], ],
         ],
         q(an empty value was given.) =>
             [qw[file_delim file_expr files_from match_expr directory]],

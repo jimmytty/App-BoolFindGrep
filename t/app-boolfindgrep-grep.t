@@ -14,6 +14,7 @@ my @test = (
             { line_regexp   => qr{\A.*\z} },
             { word_regexp   => qr{\b.*\b} },
             { ignore_case   => qr{.*}i },
+            { glob_regexp   => qr{\.[^/]*} },
         ],
     ],
 );
@@ -64,8 +65,8 @@ foreach my $test (@test) {
     my $testname = sprintf q(%s:'%s'), $method, $input;
     my $obj = $class->new();
     $obj->patterns($patterns);
-    $obj->$method($input, q(STDIN));
-    my %output = %{$obj->greped()};
+    $obj->$method( $input, q(STDIN) );
+    my %output = %{ $obj->greped() };
     my $output;
     foreach my $key ( keys %output ) {
         $output = $output{$key};
