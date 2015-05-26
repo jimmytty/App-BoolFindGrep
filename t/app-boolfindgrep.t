@@ -1,14 +1,13 @@
 #/usr/bin/env perl
 
-use DDP;
-
 use common::sense;
 use warnings FATAL => q(all);
 use English qw[-no_match_vars];
-use List::Util qw[first];
-use File::Spec::Functions;
 use File::Basename;
 use File::Path qw[remove_tree];
+use File::Spec::Functions;
+use IO::File;
+use List::Util qw[first];
 use Test::More;
 use Time::Piece;
 use Time::Seconds;
