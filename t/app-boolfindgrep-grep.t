@@ -65,7 +65,7 @@ foreach my $test (@test) {
     my $testname = sprintf q(%s:'%s'), $method, $input;
     my $obj = $class->new();
     $obj->patterns($patterns);
-    $obj->$method( $input, q(STDIN) );
+    $obj->$method( $input, q(STDIN), 0 );
     my %output = %{ $obj->greped() };
     my $output;
     foreach my $key ( keys %output ) {

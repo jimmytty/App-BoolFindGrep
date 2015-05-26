@@ -25,7 +25,7 @@ has files_delim => (
 );
 has file_expr => (
     is      => q(rw),
-    isa     => sub { die if ref $_[0]; },
+    isa     => sub { die if @_ > 1; die if ref $_[0]; },
     default => undef,
 );
 has find_type => (

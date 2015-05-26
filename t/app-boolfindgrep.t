@@ -98,7 +98,7 @@ foreach my $test (@test) {
     }
 } ## end foreach my $test (@test)
 
-# remove_tree $tmpdir;
+remove_tree $tmpdir;
 done_testing();
 
 # Local Variables:

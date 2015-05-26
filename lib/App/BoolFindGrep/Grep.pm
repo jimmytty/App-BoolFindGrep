@@ -42,6 +42,10 @@ has glob_regexp => (
     isa     => sub { ( $_[0] == 1 || $_[0] == 0 ) or die; },
     default => 0,
 );
+has content_found => (
+    is      => q(rw),
+    default => sub { {}; },
+);
 
 sub process {
     my $self = shift;
@@ -59,7 +63,7 @@ sub process {
         if ( my $fh = IO::File->new( $file, q(r) ) ) {
             while ( my $line = readline $fh ) {
                 chomp $line;
-                $self->_search( $line, $file );
+                $self->_search( $line, $file, $fh->input_line_number(), );
             }
         }
         else { croak $OS_ERROR; }
@@ -69,16 +73,19 @@ sub process {
 } ## end sub process
 
 sub _search {
-    my $self   = shift;
-    my $string = shift;
-    my $file   = shift;
+    my $self        = shift;
+    my $string      = shift;
+    my $file        = shift;
+    my $line_number = shift;
 
     foreach my $pattern ( keys %{ $self->patterns } ) {
         my $re = $self->patterns->{$pattern};
         $self->greped->{$file}{$pattern} //= 0;
 
-        $self->greped->{$file}{$pattern}++
-            if $string =~ m{$re};
+        if ( $string =~ m{$re} ) {
+            $self->greped->{$file}{$pattern}++;
+            $self->content_found->{$file}{$line_number} = $string;
+        }
     }
 
     return 1;

@@ -8,8 +8,8 @@ use App::BoolFindGrep;
 
 # VERSION
 
-has args  => ( is => q(rw), default => sub { {}; }, );
-has files => ( is => q(rw), default => sub { []; }, );
+has args   => ( is => q(rw), default => sub { {}; }, );
+has result => ( is => q(rw), default => sub { []; }, );
 
 sub process {
     my $self = shift;
@@ -33,10 +33,34 @@ sub process {
         return;
     } ## end if ($EVAL_ERROR)
 
-    @{ $self->files }
-        = defined $self->args->{match_expr}
-        ? @{ $controller->greped_files() }
-        : @{ $controller->found_files() };
+    if ( defined $self->args->{match_expr} ) {
+        my ( %result, $num_max );
+        foreach my $file ( sort @{ $controller->greped_files() } ) {
+            next unless exists $controller->grep->content_found->{$file};
+            foreach my $number (
+                keys %{ $controller->grep->content_found->{$file} } )
+            {
+                if ( !( defined $num_max ) || $number > $num_max ) {
+                    $num_max = $number;
+                }
+                $result{$file}{$number}
+                    = $controller->grep->content_found->{$file}{$number};
+            }
+        }
+        foreach my $file (%result) {
+            foreach my $number ( sort { $a <=> $b } keys %{ $result{$file} } )
+            {
+                my $string = $result{$file}{$number};
+                my $result = sprintf q(%s:%.*d:%s),     #
+                    $file, length $num_max, $number, $string;
+                push @{$self->result()}, $result;
+            }
+        }
+
+    } ## end if ( defined $self->args...)
+    else { @{ $self->result() } = @{ $controller->found_files() }; }
+
+    @{ $self->result() } = sort @{ $self->result() };
 
     return 1;
 } ## end sub process
@@ -108,7 +132,7 @@ sub _args_translator {
                 $value = qq(\N{NULL});
             }
         }
-        elsif (exists $array2scalar{$key}) {
+        elsif ( exists $array2scalar{$key} ) {
             my $ref = ref $value // q();
             $value = "@$value" if $ref eq q(ARRAY);
         }

@@ -26,7 +26,6 @@ has found_files => (
     is      => q(rw),
     default => sub { []; },
 );
-
 has greped_files => (
     is      => q(rw),
     default => sub { []; },
